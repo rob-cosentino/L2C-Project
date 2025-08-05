@@ -27,25 +27,4 @@
 }
 
 
-// {
-//   "name": "capstone-dev",
-//   "dockerComposeFile": "docker-compose.yml",
-//   "service": "app",
-//   "workspaceFolder": "/workspace",
-
-//   // 👇 prevent the CLI from replacing the command with `python3`
-//   "overrideCommand": false,
-
-//   "runServices": ["db"],
-//   "postCreateCommand": "pip install -r /workspace/api/requirements.txt",
-//   "forwardPorts": [5432, 8000],
-//   "features": {
-//     "ghcr.io/devcontainers/features/azure-cli:1": {},
-//     "ghcr.io/devcontainers/features/apt-packages:1": {
-//     "packages": "postgresql-client"
-//   } 
-//   }
-// }
-
-
 

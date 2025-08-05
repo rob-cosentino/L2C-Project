@@ -3,25 +3,65 @@ services:
     image: postgres:16
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: app_db
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-journal}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-journal}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   app:
     image: mcr.microsoft.com/devcontainers/python:1-3.12-bullseye
     depends_on:
-      - db
-    # mount the repo (compose file sits in .devcontainer/, so one level up)
+      db:
+        condition: service_healthy
     volumes:
       - ..:/workspace:cached
-    # 👇 a do-nothing command that never exits
+    # Load the same .env as the app uses
+    env_file:
+      - ../.env
+    # Override DB_HOST just for the app so it reaches the 'db' service (not localhost)
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-journal}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
     command: sleep infinity
 
 volumes:
   db_data:
+
+# services:
+#   db:
+#     image: postgres:16
+#     restart: unless-stopped
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: app_db
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - db_data:/var/lib/postgresql/data
+
+#   app:
+#     image: mcr.microsoft.com/devcontainers/python:1-3.12-bullseye
+#     depends_on:
+#       - db
+#     # mount the repo (compose file sits in .devcontainer/, so one level up)
+#     volumes:
+#       - ..:/workspace:cached
+#     # 👇 a do-nothing command that never exits
+#     command: sleep infinity
+
+# volumes:
+#   db_data:
 
 
