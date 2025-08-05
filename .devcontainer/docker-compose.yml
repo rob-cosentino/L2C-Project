@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  app:
+    image: mcr.microsoft.com/devcontainers/python:1-3.12-bullseye
+    depends_on:
+      - db
+    # mount the repo (compose file sits in .devcontainer/, so one level up)
+    volumes:
+      - ..:/workspace:cached
+    # 👇 a do-nothing command that never exits
+    command: sleep infinity
+
+volumes:
+  db_data:
+
+
